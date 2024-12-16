@@ -1,0 +1,158 @@
+Ticket coding
+
+Question:
+
+Ticket Booking Application
+Design a Python-based ticket booking system that allows customers to book tickets for events, manage their bookings, and verify customer details.
+Requirements:
+1.	Customer Class:
+a.	Contains attributes: customer_id, name, and phone.
+b.	A method generate_customer_id() generates customer IDs in the format TICK1234, where 1234 is a random number.
+c.	A method verify_customer_id(customer_id) verifies that a given customer ID follows the format TICK1234.
+2.	TicketBooking Class:
+a.	Manages events as a dictionary with event names as keys. Each event should have attributes: price (ticket price) and seats (number of seats available).
+b.	Contains methods:
+	display_events(): Displays all available events with ticket prices and available seats.
+	book_ticket(event_name, quantity, customer): Allows a customer to book tickets for a given event if seats are available. It should:
+	Deduct booked seats from available seats.
+	Calculate and display the total price.
+	Store the booking details in a list.
+	view_booked_tickets(customer): Displays all tickets booked by a specific customer.
+3.	Program Flow:
+o	Start by welcoming the user and asking for a Customer ID.
+o	If the ID is invalid, prompt the customer to register by entering their name and phone number. Generate a new valid Customer ID.
+o	Provide the following menu options:
+	View all available events.
+	Book tickets for an event.
+	View all tickets booked by the customer.
+	Exit the application.
+4.	Constraints:
+o	Ensure the customer ID format is verified before proceeding.
+o	Restrict booking of tickets to the available number of seats.
+o	Handle invalid inputs gracefully (e.g., invalid event names or quantities).
+
+
+
+Inheritance:
+
+1.	PremiumCustomer Class:
+o	Inherits from Customer.
+o	Adds a new property membership_status (e.g., Gold, Silver, None).
+o	Introduces the method apply_discount, which gives a discount based on membership level.
+o	Adds a method get_membership_status to retrieve the customer's membership status.
+2.	Booking System:
+o	When booking tickets, if the customer is a PremiumCustomer, the apply_discount method is used to adjust the ticket price based on the membership status.
+Usage Example:
+1.	A regular customer can book tickets normally without any discount.
+2.	A PremiumCustomer with a "Gold" or "Silver" membership will get a discount when booking tickets.
+For example, a "Gold" member would receive a 20% discount on tickets for the events they book.
+This approach allows you to extend functionality by creating more specific customer types while maintaining a clean and modular design.
+
+Answer:
+
+import random
+import re
+
+class Customer:
+    def __init__(self, customer_id, name, phone):
+        self.customer_id = customer_id
+        self.name = name
+        self.phone = phone
+
+    @staticmethod
+    def generate_customer_id():
+        random_id = random.randint(1000, 9999)
+        return f"TICK{random_id}"
+
+    @staticmethod
+    def verify_customer_id(customer_id):
+        pattern = r"^TICK\d{4}$"
+        return re.match(pattern, customer_id) is not None
+
+class TicketBooking:
+    def __init__(self):
+        self.events = {
+            "Concert": {"price": 50, "seats": 100},
+            "Theater": {"price": 40, "seats": 75},
+            "Sports": {"price": 60, "seats": 50},
+        }
+        self.booked_tickets = []
+
+    def display_events(self):
+        print("\nAvailable Events:")
+        for event, details in self.events.items():
+            print(f"{event}: ${details['price']} per ticket, {details['seats']} seats available")
+
+    def book_ticket(self, event_name, quantity, customer):
+        if event_name in self.events:
+            event = self.events[event_name]
+            if event['seats'] >= quantity:
+                total_price = event['price'] * quantity
+                event['seats'] -= quantity
+                self.booked_tickets.append({
+                    "customer_id": customer.customer_id,
+                    "event": event_name,
+                    "quantity": quantity,
+                    "total_price": total_price,
+                })
+                print(f"Successfully booked {quantity} tickets for {event_name}. Total price: ${total_price}")
+            else:
+                print(f"Not enough seats available for {event_name}. Only {event['seats']} seats left.")
+        else:
+            print(f"Event {event_name} not found.")
+
+    def view_booked_tickets(self, customer):
+        print("\nYour Booked Tickets:")
+        customer_tickets = [t for t in self.booked_tickets if t["customer_id"] == customer.customer_id]
+        if not customer_tickets:
+            print("No tickets booked.")
+        else:
+            for ticket in customer_tickets:
+                print(f"Event: {ticket['event']}, Quantity: {ticket['quantity']}, Total Price: ${ticket['total_price']}")
+
+if __name__ == "__main__":
+    booking_system = TicketBooking()
+
+    print("Welcome to the Ticket Booking System!")
+    customer_id = input("Enter your Customer ID: ")
+
+    if Customer.verify_customer_id(customer_id):
+        name = input("Enter your name: ")
+        phone = input("Enter your phone number: ")
+        customer = Customer(customer_id, name, phone)
+        print("Customer ID verified. Proceeding to ticket booking...")
+    else:
+        print("Invalid Customer ID. Please register.")
+        name = input("Enter your name: ")
+        phone = input("Enter your phone number: ")
+        customer_id = Customer.generate_customer_id()
+        customer = Customer(customer_id, name, phone)
+        print(f"Your Customer ID is: {customer_id}")
+
+    while True:
+        print("\nTicket Booking Menu:")
+        print("1. View Events")
+        print("2. Book Ticket")
+        print("3. View My Tickets")
+        print("4. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            booking_system.display_events()
+        elif choice == "2":
+            event_name = input("Enter the event name: ")
+            quantity = int(input("Enter the number of tickets: "))
+            booking_system.book_ticket(event_name, quantity, customer)
+        elif choice == "3":
+            booking_system.view_booked_tickets(customer)
+        elif choice == "4":
+            print("Thank you for using the Ticket Booking System! Have a great day!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+
+
+
+
+Inheritance:
